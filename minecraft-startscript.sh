@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Minecraftserver startscript
-#Serververzeichnung
+#Serververzeichnis
 dir=/home/minecraft/vanilla
 
 #name des screens
