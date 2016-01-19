@@ -21,8 +21,8 @@ days=21
 #aktuelles datum
 date=$(date +%F-%H-%M)
 
-
 do_start() {
+        cd $dir
 	screen -L -d -m -S $screen java -server -Xmx4096m -jar $jar nogui
 }
 
@@ -32,7 +32,7 @@ do_stop() {
 
 do_restart() {
 	do_stop
-	sleep 10
+	sleep 60
 	do_start
 }
 
@@ -43,7 +43,6 @@ do_backup() {
 	rm -rf $dir/backup/
 	cp -r $dir/world/ $dir/backup/
 	screen -S $screen -X stuff 'save-on\n'
-	screen -S $screen -X stuff 'say Backup fertig\n'
 }
 
 do_archive() {
@@ -59,21 +58,28 @@ do_clean() {
 	cd $dir
 	rm $dir/screenlog.0
 	touch $dir/screenlog.0
+	screen -S $screen -X stuff 'say Backup fertig\n'
 }
-
-do_ftp() {
-	lftp -c "open -u USER,PASSWORD HOST; mirror -c -e -R $backup /minecraft/$screen"
-}
-
 
 do_check() {
+#MODPACK ONLY
+screen -S $screen -X stuff 'list\n'
+sleep 10
+ONLINE=$(grep online $dir/screenlog.0 | awk {'print $6'} | sed '2,999d')
+if [ "$ONLINE" != "0/10" ] ;
+        then
+                do_backup
+                do_archive
+                do_clean
+fi
+#MODPACK ONLY
+
 JOINED=$(grep -o "joined the game" $dir/screenlog.0 | sed '2,999d')
 if [ "$JOINED" = "joined the game" ] ;
 	then
 		do_backup
 		do_archive
 		do_clean
-		do_ftp
 fi
 
 LEFT=$(grep -o "left the game" $dir/screenlog.0 | sed '2,999d')
@@ -82,7 +88,6 @@ if [ "$LEFT" = "left the game" ] ;
 		do_backup
 		do_archive
 		do_clean
-		do_ftp
 fi
 }
 
