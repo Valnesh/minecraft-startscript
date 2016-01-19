@@ -62,7 +62,6 @@ do_clean() {
 }
 
 do_check() {
-#MODPACK ONLY
 screen -S $screen -X stuff 'list\n'
 sleep 10
 ONLINE=$(grep online $dir/screenlog.0 | awk {'print $6'} | sed '2,999d')
@@ -72,7 +71,6 @@ if [ "$ONLINE" != "0/10" ] ;
                 do_archive
                 do_clean
 fi
-#MODPACK ONLY
 
 JOINED=$(grep -o "joined the game" $dir/screenlog.0 | sed '2,999d')
 if [ "$JOINED" = "joined the game" ] ;
